@@ -44,6 +44,8 @@ pub trait TokenTrait {
     fn name(e: Env) -> String;
 
     fn symbol(e: Env) -> String;
+
+    
 }
 
 fn check_nonnegative_amount(amount: i128) {
@@ -131,6 +133,29 @@ impl TokenTrait for Token {
         receive_balance(&e, to.clone(), amount);
         event::transfer(&e, from, to, amount)
     }
+//QF
+pub fn is_spender_authorized_for_campaign(
+e: &Env,
+spender: &Address,
+campaign_id: &Address,
+) -> bool {{
+// Get the address of the administrator of the campaign.
+let administrator = read_administrator(e);
+
+// If the spender is the administrator of the campaign, then they are authorized to spend the token for the campaign.
+if spender == administrator {
+    return true;
+}
+
+// Check if the spender has the token spender role.
+let has_token_spender_role = e.storage().instance().get::<DataKey, bool>(&DataKey::TokenSpender(spender.clone())).unwrap_or(false);
+return has_token_spender_role;
+}}
+//QF
+        pub fn has_token_spender_role(e: &Env, user: &Address) -> bool {
+            let key = DataKey::TokenSpender(user.clone());
+            e.storage().instance().get::<DataKey, bool>(&key).unwrap_or(false)
+        }
 
     fn burn(e: Env, from: Address, amount: i128) {
         from.require_auth();
@@ -214,4 +239,4 @@ impl TokenTrait for Token {
     fn symbol(e: Env) -> String {
         read_symbol(&e)
     }
-}
+}}

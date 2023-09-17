@@ -9,18 +9,20 @@ export interface IDepositsProps {
   decimals: number
   name?: string
   symbol?: string
-  idCrowdfund: string
+  idCrowdfund?: string // optional
+  campaignId: string // required
 }
 
 export function Deposits(props: IDepositsProps) {
   const [balance, setBalance] = React.useState<BigInt>(BigInt(0))
 
   React.useEffect(() => {
-    getBalance({ user: props.address }).then(setBalance)
-  }, [props.address])
+    if (props.campaignId) {
+      getBalance({ user: props.address, campaignId: props.campaignId }).then(setBalance)
+    }
+  }, [props.address, props.campaignId])
 
-
-  if (Number(balance) <= 0) {
+  if (Number(balance) <= 0 || !props.campaignId) {
     return <React.Fragment />
   }
 

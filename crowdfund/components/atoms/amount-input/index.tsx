@@ -6,14 +6,16 @@ export interface InputProps {
   setAmount: Dispatch<SetStateAction<number | undefined>>
   input: string
   setInput: Dispatch<SetStateAction<string>>
+  campaignId?: string
 }
 
-export function AmountInput({ placeHolder, setAmount, input, setInput }: InputProps) {
+export function AmountInput({ placeHolder, setAmount, input, setInput, campaignId }: InputProps) {
   const handleChange = (event: {
     target: { name: string; value: string }
   }): void => {
     setAmount(parseInt(event.target.value))
     setInput(event.target.value)
+    campaignId && setCampaignId(campaignId)
   }
 
   return (

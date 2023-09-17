@@ -62,3 +62,21 @@ pub fn spend_allowance(e: &Env, from: Address, spender: Address, amount: i128) {
         allowance.expiration_ledger,
     );
 }
+//QF
+pub fn has_allowance_spender_role(e: &Env, user: &Address) -> bool {
+    let key = DataKey::AllowanceSpender(user.clone());
+    e.storage().instance().has(&key)
+}
+pub fn is_spender_authorized(e: &Env, spender: &Address, campaign_id: &Address) -> bool {
+
+    // Check if the spender is the administrator of the campaign.
+    if spender == read_administrator(e) {
+        return true;
+    }
+
+    // Check if the spender has the AllowanceSpender role.
+    if has_allowance_spender_role(e, spender) {
+        return true;
+    }
+
+}

@@ -17,6 +17,8 @@ pub enum DataKey {
     Token,
     User(Address),
     RecipientClaimed,
+    //Allowance spender for QF
+      AllowanceSpender(Address),
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -227,6 +229,12 @@ impl Crowdfund {
         let balance = get_user_deposited(&e, &user);
         set_user_deposited(&e, &user, &(balance + amount));
 
+        
+    //My QF Modification to Deposit: Keep track of the number of unique donors
+    let unique_donors = e.storage().instance().get::<_, i128>(&DataKey::UniqueDonors).unwrap_or(0);
+    e.storage().instance().set(&DataKey::UniqueDonors, &(unique_donors + 1));
+    //End of QF Modification
+
         let client = token::Client::new(&e, &token_id);
         client.transfer(&user, &e.current_contract_address(), &amount);
 
@@ -257,6 +265,22 @@ impl Crowdfund {
                     !get_recipient_claimed(&e),
                     "sale was successful, recipient has withdrawn funds already"
                 );
+
+        //My QF Modification to withdraw; Distribute the funds to the recipient and to the donors in a quadratic manner
+        let token = get_token(&e);
+        let total_balance = get_balance(&e, &token);
+        let unique_donors = e.storage().instance().get::<_, i128>(&DataKey::UniqueDonors).unwrap_or(0);
+
+        // Calculate the recipient's share of the funds
+        let recipient_share = total_balance / 2;
+
+        // Calculate the donors' share of the funds
+        let donors_share = total_balance - recipient_share;
+
+        // Distribute the donors' share in a quadratic manner
+        let donor_share_per_unique_donor = donors_share / unique_donors;
+
+        //End of QF Modification
 
                 let token = get_token(&e);
                 transfer(&e, &recipient, &get_balance(&e, &token));

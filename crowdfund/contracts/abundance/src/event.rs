@@ -34,3 +34,13 @@ pub(crate) fn burn(e: &Env, from: Address, amount: i128) {
     let topics = (symbol_short!("burn"), from);
     e.events().publish(topics, amount);
 }
+
+pub(crate) fn pledge(e: &Env, user: Address, campaign_id: Address, amount: i128) {
+    let topics = (Symbol::new(e, "pledge"), user, campaign_id);
+    e.events().publish(topics, amount);
+}
+
+pub(crate) fn withdraw_pledge(e: &Env, user: Address, campaign_id: Address, amount: i128) {
+    let topics = (Symbol::new(e, "withdraw_pledge"), user, campaign_id);
+    e.events().publish(topics, amount);
+}
